@@ -1,6 +1,5 @@
 import streamlit as st
 import pandas as pd
-import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.preprocessing import StandardScaler
@@ -54,19 +53,10 @@ else:
         'Type series name...',
         data[data['type']=='TV Show']['title'].tolist()
     )
+    
 recommendations = recommend(options)
 st.write(f"If you're watching {options} then...")
 st.subheader('You should also watch')
 with st.container():
     for suggestions in recommendations:
         st.write(suggestions)
-
-
-
-
-
-
-
-
-
-
