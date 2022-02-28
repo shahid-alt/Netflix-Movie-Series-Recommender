@@ -5,20 +5,8 @@ from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.preprocessing import StandardScaler
 
-def transform(data,new_df):
-    for index in data.index:
-        title = data.loc[index,'title'].strip()
-        director = data.loc[index,'director'].strip().replace(',',' ')
-        cast = data.loc[index,'cast'].strip().replace(',',' ')
-        country = data.loc[index,'country'].strip().replace(',',' ')
-        rating = data.loc[index,'rating'].strip().replace(',',' ')
-        description = data.loc[index,'description'].strip('.').replace(',',' ')
-        new_df.loc[index,'Id'] = data.loc[index,'show_id']
-        new_df.loc[index,'Title'] = data.loc[index,'title']
-        info = description+' '+title+' '+director+' '+cast+' '+country+' '+rating
-        new_df.loc[index,'Info'] = info
-    return new_df
 
+@st.cache(suppress_st_warning=True)
 def recommend(movie):   
     rec_list = []                                      
     movies = new_df[new_df['Title'] == movie].index[0]
@@ -26,12 +14,17 @@ def recommend(movie):
     for i in distance[1:11]:
         rec_list.append(new_df.iloc[i[0]].Title)
     return rec_list
+
+@st.cache(suppress_st_warning=True)
+def load_data(fpath):
+    data = pd.read_csv(fpath)
+    data = data.replace(np.nan,'')
+    df = data[['show_id','type','title','director','cast','country','rating','description']]
+    return df
          
-data = pd.read_csv('netflix_titles.csv')
-data = data.replace(np.nan,'')
-data = data[['show_id','type','title','director','cast','country','rating','description']]
-new_df = pd.DataFrame(columns=['Id','Title','Info'])
-new_df = transform(data, new_df)
+data = load_data('netflix_titles.csv')
+new_df = pd.read_csv('dataset.csv')
+
 
 tfidf = TfidfVectorizer(strip_accents='ascii',analyzer='word',stop_words='english',max_features=15000)
 vectorizer = tfidf.fit_transform(new_df['Info'])
